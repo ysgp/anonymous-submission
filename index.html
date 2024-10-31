@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>匿名投稿</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <h1>匿名投稿</h1>
+  <form id="submissionForm" action="/submit" method="POST" enctype="multipart/form-data">
+    <label for="text">文字投稿：</label>
+    <textarea id="text" name="text" rows="4" required></textarea><br>
+    <p id="charCount">字數：0</p>
+    <label for="image">圖片上傳：</label>
+    <input type="file" id="image" name="image" accept="image/*"><br><br>
+    <button type="submit">提交</button>
+  </form>
+  <p id="message"></p>
+
+  <h2>回報區</h2>
+  <form id="reportForm">
+    <label for="report">回報內容：</label>
+    <textarea id="report" name="report" rows="4" required></textarea><br>
+    <button type="submit">提交回報</button>
+  </form>
+  <p id="reportMessage"></p>
+
+  <script>
+    // 更新字數顯示
+    const textArea = document.getElementById("text");
+    const charCount = document.getElementById("charCount");
+
+    textArea.addEventListener("input", () => {
+      charCount.textContent = `字數：${textArea.value.length}`;
+    });
+
+    // 送出投稿表單後清空文字框
+    document.getElementById("submissionForm").onsubmit = async (e) => {
+      e.preventDefault();
+      const formData = new FormData(e.target);
+      const response = await fetch('/submit', { method: 'POST', body: formData });
+      document.getElementById("message").textContent = await response.text();
+      textArea.value = "";  // 清空文字框
+      charCount.textContent = "字數：0";  // 重置字數顯示
+    };
+
+    // 送出回報表單
+    document.getElementById("reportForm").onsubmit = async (e) => {
+      e.preventDefault();
+      const reportData = new FormData(e.target);
+      const response = await fetch('/report', { method: 'POST', body: reportData });
+      document.getElementById("reportMessage").textContent = await response.text();
+      document.getElementById("report").value = "";  // 清空回報框
+    };
+  </script>
+</body>
+</html>
